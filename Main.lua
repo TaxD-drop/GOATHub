@@ -7,9 +7,9 @@ if game.GameId ~= EXPECTED_GAME_ID then
 end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Config = require(script.Parent.Config)
-local UI = require(script.Parent.UI)
-local AutoGift = require(script.Parent.AutoGift)
+local Config = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/Config.lua"))()
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/UI.lua"))()
+local AutoGift = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoGift.lua"))()
 
 local player = game:GetService("Players").LocalPlayer
 local placeId = game.PlaceId
