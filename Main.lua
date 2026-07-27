@@ -2,9 +2,9 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local UI = require(script.Parent.UI)
-local AutoBuy = require(script.Parent.AutoBuy)
-local AutoGift = require(script.Parent.AutoGift)
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/UI.lua"))()
+local AutoBuy = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoBuy.lua"))()
+local AutoGift = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoGift.lua"))()
 
 local player = game:GetService("Players").LocalPlayer
 local network = ReplicatedStorage:WaitForChild("Network")
