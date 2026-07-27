@@ -7,9 +7,18 @@ if game.GameId ~= EXPECTED_GAME_ID then
 end
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Config = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/Config.lua"))()
-local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/UI.lua"))()
-local AutoGift = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoGift.lua"))()
+local HUB_URL = "https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/"
+
+-- Os módulos do hub são carregados do GitHub porque o Main é executado via
+-- loadstring. Os require abaixo para ReplicatedStorage continuam sendo apenas
+-- módulos internos do próprio jogo.
+local function loadHubModule(fileName)
+    return loadstring(game:HttpGet(HUB_URL .. fileName))()
+end
+
+local Config = loadHubModule("Config.lua")
+local UI = loadHubModule("UI.lua")
+local AutoGift = loadHubModule("AutoGift.lua")
 
 local player = game:GetService("Players").LocalPlayer
 local placeId = game.PlaceId
@@ -54,7 +63,7 @@ local function addGiftControls()
 end
 
 local function addAutoBuyControls()
-    local AutoBuy = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoBuy.lua"))()
+    local AutoBuy = loadHubModule("AutoBuy.lua")
     local plotsInvoke = network:WaitForChild("Plots_Invoke")
     local ClientPlot = require(ReplicatedStorage.Library.Client.PlotCmds.ClientPlot)
     local autoBuy = AutoBuy.new(plotsInvoke, setStatus)
@@ -119,22 +128,12 @@ local function addAutoBuyControls()
 end
 
 local function addFarmingControls()
-    local AutoOrbs = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoOrbs.lua"))()
-    local AutoBreakables = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoBreakables.lua"))()
-    local AutoEggs = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoEggs.lua"))()
-    local directory = require(ReplicatedStorage.Library.Directory)
-
+    local AutoOrbs = loadHubModule("AutoOrbs.lua")
+    local AutoBreakables = loadHubModule("AutoBreakables.lua")
     local autoOrbs = AutoOrbs.new(network:WaitForChild("Orbs: Collect"), setStatus)
     local autoBreakables = AutoBreakables.new(network:WaitForChild("Breakables_PlayerDealDamage"), setStatus)
-    local autoEggs = AutoEggs.new(
-        network:WaitForChild("Eggs_RequestPurchase"),
-        network:WaitForChild("Eggs_PlayOpenAnimation"),
-        directory,
-        setStatus
-    )
     table.insert(controllers, autoOrbs)
     table.insert(controllers, autoBreakables)
-    table.insert(controllers, autoEggs)
 
     contentItem(UI.section(content, "FARMING — PLACE ATUAL"))
     contentItem(UI.checkbox(content, "Auto coletar Orbs / Moedas", false, function(enabled)
@@ -144,20 +143,6 @@ local function addFarmingControls()
         if enabled then autoBreakables:start() else autoBreakables:stop() end
     end))
 
-    contentItem(UI.section(content, "AUTO OPEN EGGS"))
-    contentItem(UI.dropdown(content, "Eggs para abrir", autoEggs.eggs, autoEggs.selectedEggs))
-    local eggsButton = UI.button(content, "Auto Open Eggs: OFF", window.colors.red, 42)
-    contentItem(eggsButton)
-    eggsButton.MouseButton1Click:Connect(function()
-        if autoEggs.running then
-            autoEggs:stop()
-            eggsButton.Text, eggsButton.BackgroundColor3 = "Auto Open Eggs: OFF", window.colors.red
-            return
-        end
-        if autoEggs:start() then
-            eggsButton.Text, eggsButton.BackgroundColor3 = "Auto Open Eggs: ON", window.colors.green
-        end
-    end)
 end
 
 -- Gift aparece em qualquer place deste jogo. Os demais recursos só existem
