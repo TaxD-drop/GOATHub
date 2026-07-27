@@ -54,7 +54,7 @@ local function addGiftControls()
 end
 
 local function addAutoBuyControls()
-    local AutoBuy = require(script.Parent.AutoBuy)
+    local AutoBuy = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoBuy.lua"))()
     local plotsInvoke = network:WaitForChild("Plots_Invoke")
     local ClientPlot = require(ReplicatedStorage.Library.Client.PlotCmds.ClientPlot)
     local autoBuy = AutoBuy.new(plotsInvoke, setStatus)
@@ -119,9 +119,9 @@ local function addAutoBuyControls()
 end
 
 local function addFarmingControls()
-    local AutoOrbs = require(script.Parent.AutoOrbs)
-    local AutoBreakables = require(script.Parent.AutoBreakables)
-    local AutoEggs = require(script.Parent.AutoEggs)
+    local AutoOrbs = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoOrbs.lua"))()
+    local AutoBreakables = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoBreakables.lua"))()
+    local AutoEggs = loadstring(game:HttpGet("https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/AutoEggs.lua"))()
     local directory = require(ReplicatedStorage.Library.Directory)
 
     local autoOrbs = AutoOrbs.new(network:WaitForChild("Orbs: Collect"), setStatus)
