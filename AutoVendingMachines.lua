@@ -4,13 +4,16 @@
 local AutoVendingMachines = {}
 AutoVendingMachines.__index = AutoVendingMachines
 
-AutoVendingMachines.CHECK_INTERVAL = 12
+AutoVendingMachines.CHECK_INTERVAL = 3
 
-function AutoVendingMachines.new(purchaseRemote, onStatus)
+function AutoVendingMachines.new(purchaseRemote, firstFundsRemote, approachedRemote, onStatus)
     local self = setmetatable({
         remote = purchaseRemote,
+        firstFundsRemote = firstFundsRemote,
+        approachedRemote = approachedRemote,
         onStatus = onStatus or function() end,
         enabled = false,
+        markedMachines = {},
     }, AutoVendingMachines)
 
     local library = game:GetService("ReplicatedStorage"):WaitForChild("Library")
@@ -19,6 +22,30 @@ function AutoVendingMachines.new(purchaseRemote, onStatus)
     self.currency = require(library.Client.CurrencyCmds)
     self.mastery = require(library.Client.MasteryCmds)
     return self
+end
+
+function AutoVendingMachines:_refreshStocks()
+    -- O cliente oficial só pede o estoque ao entrar no pad de uma máquina.
+    -- Aqui fazemos as duas requisições usadas por ele para que o save receba
+    -- os estoques antes da compra, mesmo sem o jogador ficar parado no pad.
+    for machineId, machine in pairs(self.directory.VendingMachines) do
+        if not self.enabled then return end
+
+        local id = machine._id or machineId
+        if not self.markedMachines[machine.MachineName] then
+            pcall(function()
+                self.approachedRemote:FireServer(machine.MachineName)
+            end)
+            self.markedMachines[machine.MachineName] = true
+        end
+        pcall(function()
+            self.firstFundsRemote:InvokeServer(id)
+        end)
+        task.wait(0.06)
+    end
+
+    -- "Vending Machines: Update Stock" chega de modo assíncrono.
+    task.wait(0.35)
 end
 
 function AutoVendingMachines:_price(machine)
@@ -58,12 +85,11 @@ function AutoVendingMachines:_maxAmount(machine, stock)
 end
 
 function AutoVendingMachines:_buyAvailable()
-    local data = self.save.Get()
-    if not data or not data.VendingStocks then return 0 end
-
     local bought = 0
     for machineId, machine in pairs(self.directory.VendingMachines) do
         if not self.enabled then break end
+        local data = self.save.Get()
+        if not data or not data.VendingStocks then continue end
         local stock = data.VendingStocks[machine._id or machineId] or 0
         local amount = self:_maxAmount(machine, stock)
         if amount > 0 then
@@ -71,8 +97,7 @@ function AutoVendingMachines:_buyAvailable()
                 return self.remote:InvokeServer(machine._id or machineId, amount)
             end)
             if ok and accepted then bought += amount end
-            task.wait(0.35)
-            data = self.save.Get() or data
+            task.wait(0.12)
         end
     end
     return bought
@@ -80,6 +105,7 @@ end
 
 function AutoVendingMachines:_loop()
     while self.enabled do
+        self:_refreshStocks()
         local bought = self:_buyAvailable()
         if self.enabled and bought > 0 then
             self.onStatus("Vending Machines: " .. bought .. " itens comprados")

@@ -4,7 +4,10 @@
 local AutoDailyRewards = {}
 AutoDailyRewards.__index = AutoDailyRewards
 
-AutoDailyRewards.CHECK_INTERVAL = 15
+-- A tabela de timestamps é atualizada pelo servidor; dois segundos evita o
+-- atraso perceptível quando um timer chega a zero, sem repetir o mesmo pedido
+-- em alta frequência.
+AutoDailyRewards.CHECK_INTERVAL = 2
 
 function AutoDailyRewards.new(redeemRemote, onStatus)
     local self = setmetatable({
@@ -41,7 +44,7 @@ function AutoDailyRewards:_collectReady()
             if ok and accepted then
                 collected += 1
             end
-            task.wait(0.25)
+            task.wait(0.08)
         end
     end
     return collected

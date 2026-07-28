@@ -65,10 +65,15 @@ local function addGiftControls()
     end))
 end
 
-local function addGlobalRewardControls()
+local function addFarmingRewardControls()
     local autoDailyRewards = AutoDailyRewards.new(network:WaitForChild("DailyRewards_Redeem"), setStatus)
     local autoRanks = AutoRanks.new(network:WaitForChild("Ranks_ClaimReward"), setStatus)
-    local autoVendingMachines = AutoVendingMachines.new(network:WaitForChild("VendingMachines_Purchase"), setStatus)
+    local autoVendingMachines = AutoVendingMachines.new(
+        network:WaitForChild("VendingMachines_Purchase"),
+        network:WaitForChild("Vending: Request First Funds"),
+        network:WaitForChild("Machines: Mark Approached"),
+        setStatus
+    )
     table.insert(controllers, autoDailyRewards)
     table.insert(controllers, autoRanks)
     table.insert(controllers, autoVendingMachines)
@@ -166,6 +171,7 @@ local function addFarmingControls()
     table.insert(controllers, autoEggs)
 
     contentItem(UI.section(content, "FARMING — PLACE ATUAL"))
+    addFarmingRewardControls()
     contentItem(UI.checkbox(content, "Auto coletar Orbs / Moedas", false, function(enabled)
         if enabled then autoOrbs:start() else autoOrbs:stop() end
     end))
@@ -188,10 +194,9 @@ local function addFarmingControls()
 
 end
 
--- Gift aparece em qualquer place deste jogo. Os demais recursos só existem
--- nos places em que os respectivos remotes e sistemas foram identificados.
+-- Gift aparece em qualquer place deste jogo. Daily Rewards, Ranks, Vending e
+-- os demais recursos de farming só são criados nos places de farming.
 addGiftControls()
-addGlobalRewardControls()
 if placeId == Config.PLACES.AUTO_BUY then
     addAutoBuyControls()
 elseif table.find(Config.PLACES.FARMING, placeId) then

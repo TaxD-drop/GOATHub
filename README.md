@@ -21,7 +21,7 @@ O Main é compatível com execução por `loadstring`: seus módulos são baixad
 
 - O script encerra imediatamente se `game.GameId` não for `3317771874`.
 - `Auto Collect Gift` aparece em qualquer place desse jogo.
-- As coletas de Daily Rewards, Ranks e Vending Machines também aparecem em qualquer place desse jogo. A compra respeita o limite normal de 3 unidades por máquina; com o perk oficial de estoque completo, compra todo o estoque, exatamente como o menu do jogo.
+- Daily Rewards, Ranks e Vending Machines aparecem somente nos places de farming. A compra prepara e lê o estoque de cada Vending Machine antes de comprar. Ela respeita o limite normal de 3 unidades por máquina; com o perk oficial de estoque completo, compra todo o estoque, exatamente como o menu do jogo.
 - Auto-Buy, Eggs, Suprimentos e Traveling Merchant aparecem somente no place `119454325063278`.
 - Auto Orbs/Moedas, Auto Quebrar Items e Auto Eggs aparecem nos places `140403681187145` e `8737899170`.
 
