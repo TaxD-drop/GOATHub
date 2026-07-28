@@ -19,6 +19,9 @@ end
 local Config = loadHubModule("Config.lua")
 local UI = loadHubModule("UI.lua")
 local AutoGift = loadHubModule("AutoGift.lua")
+local AutoDailyRewards = loadHubModule("AutoDailyRewards.lua")
+local AutoRanks = loadHubModule("AutoRanks.lua")
+local AutoVendingMachines = loadHubModule("AutoVendingMachines.lua")
 
 local player = game:GetService("Players").LocalPlayer
 local placeId = game.PlaceId
@@ -59,6 +62,26 @@ local function addGiftControls()
     contentItem(UI.section(content, "AUTOMAÇÃO GLOBAL"))
     contentItem(UI.checkbox(content, "Auto Collect Gift", false, function(enabled)
         autoGift:setEnabled(enabled)
+    end))
+end
+
+local function addGlobalRewardControls()
+    local autoDailyRewards = AutoDailyRewards.new(network:WaitForChild("DailyRewards_Redeem"), setStatus)
+    local autoRanks = AutoRanks.new(network:WaitForChild("Ranks_ClaimReward"), setStatus)
+    local autoVendingMachines = AutoVendingMachines.new(network:WaitForChild("VendingMachines_Purchase"), setStatus)
+    table.insert(controllers, autoDailyRewards)
+    table.insert(controllers, autoRanks)
+    table.insert(controllers, autoVendingMachines)
+
+    contentItem(UI.section(content, "RECOMPENSAS E MÁQUINAS"))
+    contentItem(UI.checkbox(content, "Auto Collect Daily Rewards", false, function(enabled)
+        autoDailyRewards:setEnabled(enabled)
+    end))
+    contentItem(UI.checkbox(content, "Auto Collect Ranks", false, function(enabled)
+        autoRanks:setEnabled(enabled)
+    end))
+    contentItem(UI.checkbox(content, "Auto Buy Vending Machines", false, function(enabled)
+        autoVendingMachines:setEnabled(enabled)
     end))
 end
 
@@ -168,6 +191,7 @@ end
 -- Gift aparece em qualquer place deste jogo. Os demais recursos só existem
 -- nos places em que os respectivos remotes e sistemas foram identificados.
 addGiftControls()
+addGlobalRewardControls()
 if placeId == Config.PLACES.AUTO_BUY then
     addAutoBuyControls()
 elseif table.find(Config.PLACES.FARMING, placeId) then
