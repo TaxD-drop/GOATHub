@@ -19,6 +19,6 @@ O Main é compatível com execução por `loadstring`: seus módulos são baixad
 - O script encerra imediatamente se `game.GameId` não for `3317771874`.
 - `Auto Collect Gift` aparece em qualquer place desse jogo.
 - Auto-Buy, Eggs, Suprimentos e Traveling Merchant aparecem somente no place `119454325063278`.
-- Auto Orbs/Moedas e Auto Quebrar Items aparecem somente no place `140403681187145`.
+- Auto Orbs/Moedas e Auto Quebrar Items aparecem nos places `140403681187145` e `8737899170`.
 
 O Auto Quebrar fixa o item mais próximo durante uma sequência de golpes. Assim os seus cliques normais na tela não trocam o alvo da automação.
