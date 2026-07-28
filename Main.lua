@@ -150,7 +150,7 @@ end
 addGiftControls()
 if placeId == Config.PLACES.AUTO_BUY then
     addAutoBuyControls()
-elseif placeId == Config.PLACES.FARMING then
+elseif table.find(Config.PLACES.FARMING, placeId) then
     addFarmingControls()
 else
     contentItem(UI.section(content, "Este place possui somente recursos globais."))
