@@ -17,9 +17,27 @@ function AutoEggs.new(purchaseRemote, animationRemote, onStatus)
     local client = library:WaitForChild("Client")
     local balancing = library:WaitForChild("Balancing")
     local directory = safeRequire(library:WaitForChild("Directory")) or {}
-    local eggs = {}
-    for name in pairs(directory.Eggs or {}) do table.insert(eggs, name) end
-    table.sort(eggs)
+    local ordered = {}
+    for name, egg in pairs(directory.Eggs or {}) do
+        table.insert(ordered, {
+            name = name,
+            number = tonumber(egg.eggNumber),
+        })
+    end
+    table.sort(ordered, function(left, right)
+        if left.number and right.number and left.number ~= right.number then
+            return left.number < right.number
+        end
+        if left.number and not right.number then return true end
+        if right.number and not left.number then return false end
+        return left.name < right.name
+    end)
+    local eggs, eggByLabel = {}, {}
+    for index, entry in ipairs(ordered) do
+        local label = "Ovo " .. (entry.number or index) .. " — " .. entry.name
+        table.insert(eggs, label)
+        eggByLabel[label] = entry.name
+    end
 
     return setmetatable({
         remote = purchaseRemote,
@@ -29,6 +47,7 @@ function AutoEggs.new(purchaseRemote, animationRemote, onStatus)
         currencyCmds = safeRequire(client:WaitForChild("CurrencyCmds")),
         calcPrice = safeRequire(balancing:WaitForChild("CalcEggPricePlayer")),
         eggs = eggs,
+        eggByLabel = eggByLabel,
         selectedEggs = {},
         onStatus = onStatus or function() end,
         running = false,
@@ -38,8 +57,8 @@ end
 
 function AutoEggs:_selectedNames()
     local names = {}
-    for _, name in ipairs(self.eggs) do
-        if self.selectedEggs[name] then table.insert(names, name) end
+    for _, label in ipairs(self.eggs) do
+        if self.selectedEggs[label] then table.insert(names, self.eggByLabel[label]) end
     end
     return names
 end

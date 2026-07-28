@@ -23,4 +23,4 @@ O Main é compatível com execução por `loadstring`: seus módulos são baixad
 
 O Auto Quebrar fixa o item mais próximo durante uma sequência de golpes. Assim os seus cliques normais na tela não trocam o alvo da automação.
 
-Auto Eggs usa `Eggs_RequestPurchase` com o máximo de eggs que o jogador pode pagar/abrir e respeita o debounce informado por `EggCmds`. O servidor continua validando moeda e desbloqueio do egg; a posição física do modelo do egg não é enviada no remote.
+Auto Eggs mostra os eggs na ordem oficial (`eggNumber`), usando o formato `Ovo N — Nome`, e usa `Eggs_RequestPurchase` com o máximo de eggs que o jogador pode pagar/abrir. O servidor continua validando moeda e desbloqueio do egg; a posição física do modelo do egg não é enviada no remote.
