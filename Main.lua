@@ -130,10 +130,17 @@ end
 local function addFarmingControls()
     local AutoOrbs = loadHubModule("AutoOrbs.lua")
     local AutoBreakables = loadHubModule("AutoBreakables.lua")
+    local AutoEggs = loadHubModule("AutoEggs.lua")
     local autoOrbs = AutoOrbs.new(network:WaitForChild("Orbs: Collect"), setStatus)
     local autoBreakables = AutoBreakables.new(network:WaitForChild("Breakables_PlayerDealDamage"), setStatus)
+    local autoEggs = AutoEggs.new(
+        network:WaitForChild("Eggs_RequestPurchase"),
+        network:WaitForChild("Eggs_PlayOpenAnimation"),
+        setStatus
+    )
     table.insert(controllers, autoOrbs)
     table.insert(controllers, autoBreakables)
+    table.insert(controllers, autoEggs)
 
     contentItem(UI.section(content, "FARMING — PLACE ATUAL"))
     contentItem(UI.checkbox(content, "Auto coletar Orbs / Moedas", false, function(enabled)
@@ -142,6 +149,19 @@ local function addFarmingControls()
     contentItem(UI.checkbox(content, "Auto Quebrar Items", false, function(enabled)
         if enabled then autoBreakables:start() else autoBreakables:stop() end
     end))
+
+    contentItem(UI.section(content, "AUTO EGGS"))
+    contentItem(UI.dropdown(content, "Eggs para abrir", autoEggs.eggs, autoEggs.selectedEggs))
+    local eggButton = UI.button(content, "Auto Eggs: OFF", window.colors.red, 42)
+    contentItem(eggButton)
+    eggButton.MouseButton1Click:Connect(function()
+        if autoEggs.running then
+            autoEggs:stop()
+            eggButton.Text, eggButton.BackgroundColor3 = "Auto Eggs: OFF", window.colors.red
+        elseif autoEggs:start() then
+            eggButton.Text, eggButton.BackgroundColor3 = "Auto Eggs: ON", window.colors.green
+        end
+    end)
 
 end
 

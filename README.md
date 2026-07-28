@@ -5,7 +5,7 @@ Estrutura modular para Roblox/Luau:
 - `Main.lua`: LocalScript que primeiro valida o `gameId` e inicia somente os recursos permitidos no place atual.
 - `AutoBuy.lua`: ModuleScript da compra automática.
 - `AutoGift.lua`: ModuleScript da coleta de gifts.
-- `AutoOrbs.lua` e `AutoBreakables.lua`: recursos do place de farming.
+- `AutoOrbs.lua`, `AutoBreakables.lua` e `AutoEggs.lua`: recursos do place de farming.
 - `Config.lua`: IDs do jogo e dos places permitidos.
 
 Os componentes da interface ficam na pasta irmã `GOATHubGUI`; veja o README dela para conectá-los a novas funcionalidades.
@@ -19,6 +19,8 @@ O Main é compatível com execução por `loadstring`: seus módulos são baixad
 - O script encerra imediatamente se `game.GameId` não for `3317771874`.
 - `Auto Collect Gift` aparece em qualquer place desse jogo.
 - Auto-Buy, Eggs, Suprimentos e Traveling Merchant aparecem somente no place `119454325063278`.
-- Auto Orbs/Moedas e Auto Quebrar Items aparecem nos places `140403681187145` e `8737899170`.
+- Auto Orbs/Moedas, Auto Quebrar Items e Auto Eggs aparecem nos places `140403681187145` e `8737899170`.
 
 O Auto Quebrar fixa o item mais próximo durante uma sequência de golpes. Assim os seus cliques normais na tela não trocam o alvo da automação.
+
+Auto Eggs usa `Eggs_RequestPurchase` com o máximo de eggs que o jogador pode pagar/abrir e respeita o debounce informado por `EggCmds`. O servidor continua validando moeda e desbloqueio do egg; a posição física do modelo do egg não é enviada no remote.

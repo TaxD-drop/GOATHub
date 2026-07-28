@@ -4,8 +4,8 @@
 local AutoOrbs = {}
 AutoOrbs.__index = AutoOrbs
 
-local BATCH_SIZE = 100
-local INTERVAL = 0.20
+local BATCH_SIZE = 250
+local INTERVAL = 0.06
 
 function AutoOrbs.new(collectRemote, onStatus)
     return setmetatable({
@@ -22,10 +22,9 @@ function AutoOrbs:_collectVisibleOrbs()
 
     local ids = {}
     for _, orb in ipairs(folder:GetChildren()) do
-        local id = tonumber(orb.Name)
-        if id then
-            table.insert(ids, id)
-        end
+        -- Orbs normais costumam ter ID numérico; lootbags podem usar um UID
+        -- textual. Os dois tipos são coletados pelo mesmo remote.
+        table.insert(ids, tonumber(orb.Name) or orb.Name)
     end
 
     for first = 1, #ids, BATCH_SIZE do
