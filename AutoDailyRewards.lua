@@ -1,17 +1,17 @@
 -- ModuleScript: GOATHub.AutoDailyRewards
--- Coleta apenas recompensas temporizadas que o save local informa estarem prontas.
+-- Tenta resgatar todas as recompensas temporizadas. O servidor valida cooldown,
+-- disponibilidade e a recompensa aceita; assim o cliente não depende de um
+-- timer local que pode estar desatualizado.
 
 local AutoDailyRewards = {}
 AutoDailyRewards.__index = AutoDailyRewards
 
--- A tabela de timestamps é atualizada pelo servidor; dois segundos evita o
--- atraso perceptível quando um timer chega a zero, sem repetir o mesmo pedido
--- em alta frequência.
-AutoDailyRewards.CHECK_INTERVAL = 2
+AutoDailyRewards.CHECK_INTERVAL = 8
 
-function AutoDailyRewards.new(redeemRemote, onStatus)
+function AutoDailyRewards.new(redeemRemote, approachedRemote, onStatus)
     local self = setmetatable({
         remote = redeemRemote,
+        approachedRemote = approachedRemote,
         onStatus = onStatus or function() end,
         enabled = false,
         directory = nil,
@@ -25,36 +25,39 @@ function AutoDailyRewards.new(redeemRemote, onStatus)
     return self
 end
 
-function AutoDailyRewards:_isReady(rewardName, reward)
-    local data = self.save.Get()
-    if not data or not reward then return false end
-
-    local timestamp = data.TimedRewardTimestamps and data.TimedRewardTimestamps[rewardName]
-    return not timestamp or workspace:GetServerTimeNow() - timestamp > reward.Cooldown
-end
-
-function AutoDailyRewards:_collectReady()
+function AutoDailyRewards:_collectAll()
     local collected = 0
-    for rewardName, reward in pairs(self.directory.TimedRewards) do
+    local attempted = 0
+
+    -- O código oficial itera Directory.TimedRewards diretamente. Mantemos o
+    -- mesmo iterador porque essas tabelas de diretório podem ter __iter.
+    for rewardName, reward in self.directory.TimedRewards do
         if not self.enabled then break end
-        if self:_isReady(rewardName, reward) then
-            local ok, accepted = pcall(function()
-                return self.remote:InvokeServer(rewardName)
-            end)
-            if ok and accepted then
-                collected += 1
-            end
-            task.wait(0.08)
+
+        attempted += 1
+        -- A ordem é a mesma registrada no cliente oficial ao entrar no pad:
+        -- resgate primeiro, seguido do registro de aproximação da máquina.
+        local ok, accepted = pcall(function()
+            return self.remote:InvokeServer(rewardName)
+        end)
+        pcall(function()
+            self.approachedRemote:FireServer(reward.MachineName or rewardName)
+        end)
+        if ok and accepted then
+            collected += 1
         end
+        task.wait(0.12)
     end
-    return collected
+    return collected, attempted
 end
 
 function AutoDailyRewards:_loop()
     while self.enabled do
-        local collected = self:_collectReady()
+        local collected, attempted = self:_collectAll()
         if self.enabled and collected > 0 then
             self.onStatus("Recompensas diárias coletadas: " .. collected)
+        elseif self.enabled and attempted == 0 then
+            self.onStatus("Daily Rewards não carregadas neste servidor")
         end
 
         local elapsed = 0

@@ -66,7 +66,11 @@ local function addGiftControls()
 end
 
 local function addFarmingRewardControls()
-    local autoDailyRewards = AutoDailyRewards.new(network:WaitForChild("DailyRewards_Redeem"), setStatus)
+    local autoDailyRewards = AutoDailyRewards.new(
+        network:WaitForChild("DailyRewards_Redeem"),
+        network:WaitForChild("Machines: Mark Approached"),
+        setStatus
+    )
     local autoRanks = AutoRanks.new(network:WaitForChild("Ranks_ClaimReward"), setStatus)
     local autoVendingMachines = AutoVendingMachines.new(
         network:WaitForChild("VendingMachines_Purchase"),

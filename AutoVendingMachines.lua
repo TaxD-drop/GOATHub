@@ -28,19 +28,20 @@ function AutoVendingMachines:_refreshStocks()
     -- O cliente oficial só pede o estoque ao entrar no pad de uma máquina.
     -- Aqui fazemos as duas requisições usadas por ele para que o save receba
     -- os estoques antes da compra, mesmo sem o jogador ficar parado no pad.
-    for machineId, machine in pairs(self.directory.VendingMachines) do
+    for machineId, machine in self.directory.VendingMachines do
         if not self.enabled then return end
 
         local id = machine._id or machineId
+        -- Esta é a ordem gravada pelo cliente oficial no novo log.
+        pcall(function()
+            self.firstFundsRemote:InvokeServer(id)
+        end)
         if not self.markedMachines[machine.MachineName] then
             pcall(function()
                 self.approachedRemote:FireServer(machine.MachineName)
             end)
             self.markedMachines[machine.MachineName] = true
         end
-        pcall(function()
-            self.firstFundsRemote:InvokeServer(id)
-        end)
         task.wait(0.06)
     end
 
@@ -69,13 +70,9 @@ function AutoVendingMachines:_price(machine)
 end
 
 function AutoVendingMachines:_maxAmount(machine, stock)
-    -- Sem o perk, o próprio menu do jogo limita a compra em três unidades.
-    local amount = math.min(stock, 3)
-    local ok, fullStock = pcall(function()
-        return self.mastery.HasPerk("Economy", "BuyFullVendingStock")
-    end)
-    if ok and fullStock then amount = stock end
-
+    -- O log confirma compras de quatro unidades em uma única chamada. Portanto
+    -- usamos o estoque disponível ("máximo"), limitado apenas pelo saldo.
+    local amount = stock
     local price = self:_price(machine)
     if price > 0 then
         local balance = self.currency.Get(machine.CurrencyType)
@@ -86,7 +83,7 @@ end
 
 function AutoVendingMachines:_buyAvailable()
     local bought = 0
-    for machineId, machine in pairs(self.directory.VendingMachines) do
+    for machineId, machine in self.directory.VendingMachines do
         if not self.enabled then break end
         local data = self.save.Get()
         if not data or not data.VendingStocks then continue end
