@@ -1,7 +1,7 @@
--- ModuleScript: GOATHub.UI
+-- ModuleScript: GOATHubGUI.UI
+-- Componentes reutilizáveis: janela, botão, checkbox e seletor múltiplo.
 
 local UserInputService = game:GetService("UserInputService")
-
 local UI = {}
 
 local COLORS = {
@@ -59,8 +59,6 @@ function UI.new(title)
     frame.BackgroundColor3 = COLORS.panel
     frame.Parent = gui
     corner(frame, 9)
-    -- Uma borda de 2px e a barra superior mais alta deixam a janela mais
-    -- fácil de segurar no celular, sem ficar pesada visualmente.
     stroke(frame, Color3.fromRGB(100, 100, 110), 2)
 
     local topBar = Instance.new("TextButton")
@@ -92,22 +90,19 @@ function UI.new(title)
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Parent = content
 
-    -- Arrastar pela barra evita depender de Frame.Draggable, que é legado.
     local dragging, dragStart, startPosition, dragInput
     topBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-            or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPosition = frame.Position
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging, dragStart, startPosition = true, input.Position, frame.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
     topBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement
-            or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
     end)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
@@ -121,9 +116,7 @@ function UI.new(title)
 end
 
 function UI.section(parent, text)
-    local value = label(parent, text, 18)
-    value.TextColor3 = COLORS.muted
-    return value
+    return label(parent, text, 18)
 end
 
 function UI.button(parent, text, color, height)
@@ -141,8 +134,6 @@ end
 
 function UI.checkbox(parent, text, initial, callback)
     local row = UI.button(parent, "", COLORS.card, 34)
-    row.Text = ""
-
     local box = Instance.new("TextLabel")
     box.Size = UDim2.new(0, 18, 0, 18)
     box.Position = UDim2.new(0, 10, 0.5, -9)
@@ -182,7 +173,6 @@ function UI.dropdown(parent, name, options, selected)
 
     local trigger = UI.button(holder, "", COLORS.card, 34)
     trigger.TextXAlignment = Enum.TextXAlignment.Left
-
     local optionsFrame = Instance.new("ScrollingFrame")
     optionsFrame.Position = UDim2.new(0, 0, 0, 39)
     optionsFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -203,10 +193,9 @@ function UI.dropdown(parent, name, options, selected)
     padding.PaddingLeft = UDim.new(0, 4)
     padding.PaddingRight = UDim.new(0, 4)
     padding.Parent = optionsFrame
-
-    local optionsLayout = Instance.new("UIListLayout")
-    optionsLayout.Padding = UDim.new(0, 3)
-    optionsLayout.Parent = optionsFrame
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 3)
+    layout.Parent = optionsFrame
 
     local open = false
     local function countSelected()
@@ -216,8 +205,7 @@ function UI.dropdown(parent, name, options, selected)
     end
     local function refreshTitle()
         local count = countSelected()
-        trigger.Text = string.format("  %s%s  %s", name,
-            count > 0 and " (" .. count .. ")" or "", open and "▲" or "▼")
+        trigger.Text = string.format("  %s%s  %s", name, count > 0 and " (" .. count .. ")" or "", open and "▲" or "▼")
     end
     local function setOpen(value)
         open = value
@@ -229,8 +217,7 @@ function UI.dropdown(parent, name, options, selected)
     end
 
     for index, item in ipairs(options) do
-        local itemText = tostring(item)
-        local option = UI.checkbox(optionsFrame, itemText, selected[item] == true, function(checked)
+        local option = UI.checkbox(optionsFrame, tostring(item), selected[item] == true, function(checked)
             selected[item] = checked or nil
             refreshTitle()
         end)
