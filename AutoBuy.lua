@@ -59,7 +59,7 @@ function AutoBuy:_loop(plotId)
             end
         end
 
-        task.wait(5)
+        task.wait(0.4)
     end
 end
 
