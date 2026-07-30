@@ -2,7 +2,7 @@
 -- Hub separado para o jogo BuildBoat analisado. Config e place são validados
 -- antes de criar interface, carregar features ou acessar remotes do jogo.
 
-local HUB_URL = "https://raw.githubusercontent.com/TaxD-drop/GOATHubBuild/refs/heads/main/"
+local HUB_URL = "https://raw.githubusercontent.com/TaxD-drop/GOATHub/refs/heads/main/"
 
 local function loadFile(path)
     return loadstring(game:HttpGet(HUB_URL .. path))()
